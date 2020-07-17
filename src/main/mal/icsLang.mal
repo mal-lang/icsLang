@@ -1,0 +1,11 @@
+include "ics/Controller.mal"
+include "ics/ControlServer.mal"
+include "ics/DataHistorian.mal"
+include "ics/EngineeringWorkstation.mal"
+include "ics/HMI.mal"
+include "ics/IOServer.mal"
+include "ics/SIS.mal"
+
+associations {
+
+}
