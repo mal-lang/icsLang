@@ -1,0 +1,10 @@
+category ControlResources{
+
+    asset EngineeringWorkstation extends Application 
+        user info: "The engineering workstation is usually a high-end very reliable computing platform designed for configuration, maintenance and diagnostics of the control system applications and other control system equipment."
+        developer info: "https://collaborate.mitre.org/attackics/index.php/Engineering_Workstation"
+      {
+
+      }
+
+}

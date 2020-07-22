@@ -1,0 +1,10 @@
+category ControlResources{
+
+    asset SIS extends System 
+        user info: "A safety instrumented system (SIS) takes automated action to keep a plant in a safe state, or to put it into a safe state, when abnormal conditions are present."
+        developer info: "https://collaborate.mitre.org/attackics/index.php/Safety_Instrumented_System/Protection_Relay"
+      {
+
+      }
+
+}

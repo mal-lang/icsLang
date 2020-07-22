@@ -1,0 +1,10 @@
+category InterfaceResources{
+
+    asset DataHistorian extends Application 
+        user info: "A centralized database located on a computer installed in the control system DMZ supporting external corporate user data access for archival and analysis using statistical process control and other techniques."
+        developer info: "https://collaborate.mitre.org/attackics/index.php/Data_Historian"
+      {
+
+      }
+
+}
