@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
-Copyright 2020 Foreseeti AB
+Copyright 2020 icsLang contributors
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -18,17 +18,16 @@ limitations under the License.
   <modelVersion>4.0.0</modelVersion>
 
   <groupId>org.mal-lang</groupId>
-  <artifactId>icslang</artifactId>
-  <version>1.0.0</version>
+  <artifactId>icsLang</artifactId>
+  <version>0.0.1</version>
   <packaging>jar</packaging>
 
   <name>icsLang</name>
-  <description>A MAL language that demonstrates the Maven project structure</description>
+  <description>A MAL-based Domain Specific Language (DSL) for the Industrial Control Systems (ICS) domain.</description>
   <url>https://github.com/mal-lang/icsLang</url>
   <inceptionYear>2020</inceptionYear>
   <organization>
-    <name>KTH Royal Institute of Technology</name>
-    <url>https://www.kth.se/</url>
+    <name>icsLang contributors</name>
   </organization>
   <licenses>
     <license>
@@ -37,20 +36,6 @@ limitations under the License.
       <distribution>manual</distribution>
     </license>
   </licenses>
-
-  <developers>
-    <developer>
-      <id>simonhacks</id>
-      <name>Simon Hacks</name>
-      <email>shacks@kth.se</email>
-      <organization>KTH Royal Institute of Technology</organization>
-      <organizationUrl>https://www.kth.se/</organizationUrl>
-      <roles>
-        <role>developer</role>
-      </roles>
-      <timezone>Europe/Stockholm</timezone>
-    </developer>
-  </developers>
 
   <scm>
     <connection>scm:git:git://github.com/mal-lang/icsLang.git</connection>
@@ -70,12 +55,19 @@ limitations under the License.
     <kernelcad.version>1.6.2</kernelcad.version>
     <corelib.version>${kernelcad.version}</corelib.version>
     <simulator.version>${kernelcad.version}</simulator.version>
-    <mal.file>icsLang.mal</mal.file>
-    <mal.securicad.package>org.mal_lang.icslang</mal.securicad.package>
-    <mal.reference.package>org.mal_lang.icslang.test</mal.reference.package>
+    <mal.root>${project.build.directory}/mal-root</mal.root>
+    <mal.file>${mal.root}/main.mal</mal.file>
+    <mal.securicad.icons>${mal.root}/icons</mal.securicad.icons>
+    <mal.securicad.package>org.mal_lang.icsLang</mal.securicad.package>
+    <mal.reference.package>org.mal_lang.icsLang.test</mal.reference.package>
   </properties>
 
   <dependencies>
+    <dependency>
+      <groupId>org.mal-lang</groupId>
+      <artifactId>coreLang</artifactId>
+      <version>1.0.0-SNAPSHOT</version>
+    </dependency>
     <dependency>
       <groupId>org.junit.jupiter</groupId>
       <artifactId>junit-jupiter</artifactId>
@@ -192,9 +184,6 @@ limitations under the License.
           <groupId>org.apache.maven.plugins</groupId>
           <artifactId>maven-install-plugin</artifactId>
           <version>3.0.0-M1</version>
-          <configuration>
-            <skip>true</skip>
-          </configuration>
         </plugin>
         <plugin>
           <groupId>org.apache.maven.plugins</groupId>
@@ -217,6 +206,84 @@ limitations under the License.
       </plugins>
     </pluginManagement>
     <plugins>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-dependency-plugin</artifactId>
+        <executions>
+          <execution>
+            <id>unpack-parent-language</id>
+            <phase>generate-sources</phase>
+            <goals>
+              <goal>unpack</goal>
+            </goals>
+            <configuration>
+              <artifactItems>
+                <artifactItem>
+                  <groupId>org.mal-lang</groupId>
+                  <artifactId>coreLang</artifactId>
+                  <version>1.0.0-SNAPSHOT</version>
+                  <type>jar</type>
+                  <classifier>source</classifier>
+                  <overWrite>true</overWrite>
+                  <outputDirectory>${mal.root}</outputDirectory>
+                  <excludes>META-INF/**</excludes>
+                </artifactItem>
+              </artifactItems>
+            </configuration>
+          </execution>
+        </executions>
+      </plugin>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-resources-plugin</artifactId>
+        <executions>
+          <execution>
+            <id>copy-sources</id>
+            <phase>generate-sources</phase>
+            <goals>
+              <goal>copy-resources</goal>
+            </goals>
+            <configuration>
+              <outputDirectory>${mal.root}</outputDirectory>
+              <resources>
+                <resource>
+                  <directory>${project.basedir}/src/main/mal</directory>
+                </resource>
+              </resources>
+            </configuration>
+          </execution>
+          <execution>
+            <id>copy-icons</id>
+            <phase>generate-sources</phase>
+            <goals>
+              <goal>copy-resources</goal>
+            </goals>
+            <configuration>
+              <outputDirectory>${mal.root}/icons</outputDirectory>
+              <resources>
+                <resource>
+                  <directory>${project.basedir}/src/main/resources/icons</directory>
+                </resource>
+              </resources>
+            </configuration>
+          </execution>
+          <execution>
+            <id>copy-parent-icons</id>
+            <phase>generate-sources</phase>
+            <goals>
+              <goal>copy-resources</goal>
+            </goals>
+            <configuration>
+              <outputDirectory>${mal.root}/icons</outputDirectory>
+              <resources>
+                <resource>
+                  <directory>${mal.root}/org.mal-lang.coreLang/icons</directory>
+                </resource>
+              </resources>
+            </configuration>
+          </execution>
+        </executions>
+      </plugin>
       <plugin>
         <groupId>org.mal-lang</groupId>
         <artifactId>mal-maven-plugin</artifactId>

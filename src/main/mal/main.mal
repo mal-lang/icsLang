@@ -14,15 +14,7 @@
  * limitations under the License.
  */
 
-include "org.mal-lang.coreLang/coreLang.mal"
-include "ics/Controller.mal"
-include "ics/ControlServer.mal"
-include "ics/DataHistorian.mal"
-include "ics/EngineeringWorkstation.mal"
-include "ics/HMI.mal"
-include "ics/IOServer.mal"
-include "ics/SIS.mal"
+#id: "org.mal-lang.icsLang"
+#version: "0.0.1"
 
-associations {
-
-}
+include "icsLang.mal"
