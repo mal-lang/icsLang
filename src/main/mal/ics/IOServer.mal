@@ -1,6 +1,6 @@
-category InterfaceResources{
+category IcsInterfaceResources{
 
-    asset IOServer extends Application 
+    asset IOServer extends IcsApplication 
         user info: "The Input/Output (I/O) server provides the interface between the control system LAN applications and the field equipment monitored and controlled by the control system applications."
         developer info: "https://collaborate.mitre.org/attackics/index.php/Input/Output_Server"
       {

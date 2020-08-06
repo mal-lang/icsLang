@@ -1,6 +1,6 @@
-category InterfaceResources{
+category IcsInterfaceResources{
 
-    asset HMI extends Application 
+    asset HMI extends IcsApplication 
         user info: "The Human-Machine Interface (HMI) refers to the graphical, textual and auditory information the program presents to the user (operator) using computer monitors and audio subsystems, and the control sequences the user employs to control the program."
         developer info: "https://collaborate.mitre.org/attackics/index.php/Human-Machine_Interface"
       {

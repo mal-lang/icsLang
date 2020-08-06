@@ -23,6 +23,92 @@ include "ics/HMI.mal"
 include "ics/IOServer.mal"
 include "ics/SIS.mal"
 
-associations {
+category ComputeResources {
 
+    asset IcsSystem extends System
+      user info: "An ICS System extends the coreLang's System with more attack vectors."
+      developer info: "For example, the attacker can additionally peform ATT&CK ICS T847 'Replication Through Removable Media', T862 'Supply Chain Attack' and more."
+    {
+      | connect @Override
+        +>  supplyChainAttack
+
+      | physicalAccess @Override
+        +>  replicationThroughRemovableMedia,
+            moduleFirmware,
+            systemFirmware
+
+      & replicationThroughRemovableMedia [Exponential(0.01)]
+        user info: "An adversary can get access by copying malware to removable media which is inserted into the control systems environment."
+        developer info: "MITRE ATT&CK ICS T847."
+        modeler info: "The probability fucntion and its value is just an estimation!"
+        ->  bypassAccessControl
+
+      # disallowRemovableMedia
+        user info: "Mitigation for MITRE ATT&CK ICS T847."
+        developer info: "Mitigation was inspired by Sotirios."
+        ->  replicationThroughRemovableMedia
+
+      & supplyChainAttack [Exponential(0.001)]
+        user info: "Adversaries may perform supply chain compromise to gain control systems environment access by means of infected products, software, and workflows."
+        developer info: "MITRE ATT&CK ICS T862."
+        modeler info: "The probability fucntion and its value is just an estimation!"
+        ->  bypassAccessControl
+
+      # supplyChainAuditing
+        user info: "Auditing inside the supply chain can detect possible supply chain attacks. Mitigation for MITRE ATT&CK ICS T862."
+        developer info: "Mitigation was inspired by Sotirios."
+        ->  supplyChainAttack
+
+      & moduleFirmware
+        user info: "Adversaries may install malicious or vulnerable firmware onto modular hardware devices. Control system devices often contain modular hardware devices."
+        developer info: "MITRE ATT&CK ICS T839."
+        ->  bypassAccessControl
+
+      # moduleFirmwareVerification
+        user info: "Verify the module's firmwares from the main firmware upon boot-up or during normal operation. Mitigation for MITRE ATT&CK ICS T839."
+        developer info: "Mitigation was vaguely listed on MITRE ATT&CK ICS."
+        ->  moduleFirmware
+
+      # useCryptographyKeyForFirmware
+        user info: "If a cryptographic key is used for firmware updates, the firmware will be harder to be altered. Mitigation for MITRE ATT&CK ICS T839 and T857."
+        developer info: "Mitigation was listed on MITRE ATT&CK ICS."
+        ->  moduleFirmware,
+            systemFirmware
+
+      # useAuthenticatedFirmwareUpdates
+        user info: "If authentication of the source and data is performed, malicious firmware alteration will be significantly harder. Mitigation for MITRE ATT&CK ICS T839 and T857."
+        developer info: "Mitigation was listed on MITRE ATT&CK ICS."
+        ->  moduleFirmware,
+            systemFirmware
+
+      & systemFirmware
+        user info: "An adversary may exploit the firmware update feature on accessible devices to upload malicious or out-of-date firmware."
+        developer info: "MITRE ATT&CK ICS T857."
+        ->  bypassAccessControl
+    }
+
+     asset IcsApplication extends Application
+      user info: "An ICS Application extends the coreLang's Application with OT attack vectors."
+    {
+      & specificAccess @Override
+        +>  normalOperation
+
+      | fullAccess @Override
+        +>  normalOperation
+
+      | deny @Override {A}
+        +>  restrictedOperation
+
+      | normalOperation
+        user info: "The state where the OP component is operating normaly."
+        developer info: "I am not sure if we need this. But I keep it to add one more vector that we can model! (Sotirios)"
+
+      | restrictedOperation {I,A}
+        user info: "When the OP component is compromised the operation of it is affected."
+
+    }
+
+  }
+
+associations {
 }
