@@ -27,7 +27,8 @@ limitations under the License.
   <url>https://github.com/mal-lang/icsLang</url>
   <inceptionYear>2020</inceptionYear>
   <organization>
-    <name>icsLang contributors</name>
+    <name>mal-lang</name>
+    <url>https://mal-lang.org/</url>
   </organization>
   <licenses>
     <license>
