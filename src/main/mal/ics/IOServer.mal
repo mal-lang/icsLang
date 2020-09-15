@@ -4,7 +4,12 @@ category IcsInterfaceResources{
         user info: "The Input/Output (I/O) server provides the interface between the control system LAN applications and the field equipment monitored and controlled by the control system applications."
         developer info: "https://collaborate.mitre.org/attackics/index.php/Input/Output_Server"
       {
+      // Override view related attack steps (Impact) becase they are not relevant to this asset
+      | manipulationOfView @Override {I}
 
+      | denialOfView @Override {I}
+
+      | lossOfView @Override {I}
       }
 
 }

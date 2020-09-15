@@ -143,7 +143,7 @@ category ComputeResources {
 
       | deny @Override {A}
         +>  denialOfControl,
-            denailOfView,
+            denialOfView,
             lossOfControl,
             lossOfView,
             lossOfAvailability
@@ -152,12 +152,14 @@ category ComputeResources {
       | denialOfControl {A}
         user info: "Adversaries may cause a denial of control to temporarily prevent operators and engineers from interacting with process controls."
         developer info: "MITRE ATT&CK ICS T813."
-        ->  restrictedOperation
+        ->  restrictedOperation,
+            transmittedSignal.blockSignal
 
       | manipulationOfControl {I,A}
         user info: "Adversaries may manipulate control systems devices or possibly leverage their own, to communicate with and command physical control processes."
         developer info: "MITRE ATT&CK ICS T831."
-        -> restrictedOperation
+        ->  restrictedOperation,
+            transmittedSignal.manipulateSignal
 
       | lossOfControl {I}
         user info: "Adversaries may seek to achieve a sustained loss of control or a runaway condition in which operators cannot issue any commands even if the malicious interference has subsided."
@@ -168,17 +170,19 @@ category ComputeResources {
       | manipulationOfView {I}
         user info: "Adversaries may attempt to manipulate the information reported back to operators or controllers."
         developer info: "MITRE ATT&CK ICS T832."
-        -> restrictedOperation
+        ->  restrictedOperation,
+            transmittedSignal.manipulateSignal
 
-      | denailOfView {I}
+      | denialOfView {I}
         user info: "Adversaries may cause a denial of view in attempt to disrupt and prevent operator oversight on the status of an ICS environment."
         developer info: "MITRE ATT&CK ICS T815."
-        -> restrictedOperation
+        ->  restrictedOperation,
+            transmittedSignal.blockSignal
 
       | lossOfView {I}
         user info: "Adversaries may cause a sustained or permanent loss of view where the ICS equipment will require local, hands-on operator intervention."
         developer info: "MITRE ATT&CK ICS T829."
-        -> restrictedOperation
+        ->  restrictedOperation
 
       // Other types of Impact
       | theftOfOperationalInformation {C}
@@ -197,10 +201,181 @@ category ComputeResources {
       | lossOfProductivityAndRevenue
         user info: "Adversaries may cause loss of productivity and revenue through disruption and even damage to the availability and integrity of control system operations, devices, and related processes."
         developer info: "MITRE ATT&CK ICS T828."
+    }
 
+    asset Sensor
+      user info: "An object that generates data (via a signal) but may not have any associated software or host."
+      modeler info: "It would be vulnerable to an attacker that can gain physical access to it."
+    {
+      | physicalAccess
+        user info: "Attacker has physical access on the location where the sensor is physically deployed."
+        ->  signal.manipulateSignal,
+            signal.blockSignal
+    }
+
+    asset Actuator
+      user info: "An object that consumes data (from a signal) but may not have any associated software or host."
+    {
+      | manipulate {I}
+        user info: "If the signal that is consumed by this actuator is manipulated then the actuator is also manipulated."
+        developer info: "This will lead to loss of control on the associated system."
+        ->  system.lossOfControl
+
+      | block {A}
+        user info: "If the signal that is consumed by this actuator is blocked then the actuator is also blocked."
+        developer info: "This will lead to loss of control and loss of availability on the associated system."
+        ->  system.lossOfControl,
+            system.lossOfAvailability
+    }
+
+    asset SynchronizationModule
+      user info: "This asset represents any component that provides synchronization capabilities, as for example a GPS receiver or a network-based synchronization module."
+    {
+      | compromise
+        ->  manipulateClockFrequency,
+            manipulateTime,
+            stopClock
+
+      | manipulateClockFrequency
+        ->  synchronizedApp.manipulationOfControl,
+            synchronizedApp.manipulationOfView
+
+      | manipulateTime
+        ->  synchronizedApp.manipulationOfControl,
+            synchronizedApp.manipulationOfView
+
+      | stopClock
+        ->  synchronizedApp.denialOfControl,
+            synchronizedApp.denialOfView
     }
 
   }
 
+  category DataResources {
+
+    asset Signal
+      user info: "A signal represents a dataflow or command that is sent between two assets but the medium over which is transmitted is not relevant to the model."
+      modeler info: "In the case where data or commands are transmitted over a known medium, the Data asset and the DataInTransit association should be used instead."
+      developer info: "The basic attack steps of this asset were inspired by the attack steps of the data asset in coreLang."
+    {
+      // Basic attack steps below
+      | attemptAccess
+          user info: "Attempt to access the data, this might fail if the 'dataNotPresent' defense is used."
+          ->  access
+
+        & access
+          user info: "Access the data."
+          ->  attemptRead,
+              attemptWrite,
+              attemptDelete
+
+        !E dataEncrypted @hidden
+          user info: "If the data are encrypted then accessing them requires the associated encryption credentials/key."
+          developer info: "Data will be considered as encrypted if there is at least one Credentials instance associated with it. Otherwise, 'accessUnencryptedData' is reached."
+          <-  encryptCreds
+          ->  accessUnencryptedData
+
+        # authenticated
+          user info: "If the data are authenticated, then modifying them is not possible to achieve."
+          ->  write
+
+        & accessUnencryptedData
+          user info: "If data is unencrypted then access them."
+          ->  accessDecryptedData
+
+        | accessDecryptedData @hidden
+          user info: "Intermediate attack step to only allow effects of 'accessUnencryptedData' on data after compromising the encryption credentials or encryption is disabled."
+          ->  access,
+              readContainedInformationAndData,
+              read,
+              write,
+              delete
+
+        # dataNotPresent
+          user info: "It should be used to model the probability of data actually not existing on the connected container (i.e. System, Application, Connection, etc.)."
+          developer info: "This attack step is in series with the 'accessUnencryptedData' attack step because there is no reason to defend encrypted data if they do not exist..."
+          ->  accessUnencryptedData
+
+        & readContainedInformationAndData
+          user info: "From the data, attempt to access also the contained information/data, if exists."
+          ->  information.attemptAccess,
+              containedData.attemptAccess
+
+        | attemptRead
+          user info: "Attempt to read the data."
+          ->  read
+
+        | attemptWrite
+          user info: "Attempt to write on the data."
+          ->  write
+
+        | attemptDelete
+           user info: "Attempt to delete the data."
+          -> delete
+
+        & read {C}
+          user info: "The attacker can read the data."
+          ->  containedData.attemptRead,
+              readContainedInformationAndData
+
+        & write {I}
+          user info: "The attacker can write to the location of the data, effectively deleting it."
+          ->  containedData.attemptWrite,
+              attemptDelete
+
+        & delete {I,A}
+          user info: "The attacker can delete the data."
+          ->  containedData.attemptDelete
+        
+        // STPA-SafeSec related attack steps (Those four need to be differentiated somehow)
+        | applyControlSignalTooEarly
+          ->  signalDestApp.manipulationOfControl
+
+        | applyControlSignalTooLate
+          ->  signalDestApp.manipulationOfControl
+
+        | applyControlSignalTooLong
+          ->  signalDestApp.manipulationOfControl
+
+        | applyControlSignalNotLongEnough
+          ->  signalDestApp.manipulationOfControl
+
+        | manipulateSignal
+          user info: "When an attacker sends a false or manipulated signal."
+          ->  applyControlSignalTooLong,
+              applyControlSignalTooLate,
+              applyControlSignalTooEarly,
+              applyControlSignalNotLongEnough,
+              signalActuator.manipulate,
+              signalDestApp.manipulationOfView
+
+        | blockSignal
+          user info: "When an attacker block a signal from being sent/received."
+          ->  signalActuator.block,
+              signalDestApp.denialOfControl,
+              signalDestApp.lossOfControl,
+              signalDestApp.lossOfView,
+              signalDestApp.denialOfView
+    }
+  }
+
 associations {
+  IcsApplication [signalSourceApp]    * <-- AppTransmittedSignal  --> *     [transmittedSignal] Signal
+      user info: "Any ics application can transmit a signal."
+  IcsApplication [signalDestApp]      * <-- AppReceivedSignal     --> *     [receivedSignal] Signal
+      user info: "Any ics application can receive/consume a signal."
+  Sensor         [signalSensor]       * <-- SensorSignal          --> *     [signal]         Signal
+      user info: "Any sensor can be associated with a signal over which it can send data."
+  Actuator       [signalActuator]     * <-- ActuatorSignal        --> *     [signal]         Signal
+      user info: "An actuator can be associated with a signal from which it receives data/commands."
+  Actuator       [sysActuator]        * <-- AcuatorBelongsTo      --> *     [system]         IcsSystem
+      user info: "An actuator can be associated with a system on which it actuates."
+  IcsApplication [synchronizedApp]    * <-- SynchronizationModule --> 0..1  [synchronizationModule]    SynchronizationModule
+      user info: "Any ics application can have one synchronization module to provide synchronization on the signals sent."
+  Signal         [encryptedSignal]    * <-- EncryptionCredentials --> 0..1  [encryptCreds]   Credentials
+      user info: "Encrypted signal can be associated with the relevant encryption credentials."
+  Signal         [containerSignal]    * <-- DataContainment       --> *     [containedData]  Data
+      user info: "Data can be contained inside a signal."
+  Signal         [containerSignal]    * <-- InfoContainment       --> *     [information]    Information
+      user info: "A signal can contain information."
 }

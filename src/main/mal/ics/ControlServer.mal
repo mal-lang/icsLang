@@ -4,7 +4,12 @@ category IcsControlResources{
         user info: "A device which acts as both a server and controller, that hosts the control software used in communicating with lower-level control devices in an ICS network."
         developer info: "https://collaborate.mitre.org/attackics/index.php/Control_Server"
       {
+      // Override view related attack steps (Impact) becase they are not relevant to this asset
+      | manipulationOfView @Override {I}
 
+      | denialOfView @Override {I}
+
+      | lossOfView @Override {I}
       }
 
 }

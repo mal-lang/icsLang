@@ -4,7 +4,12 @@ category IcsControlResources{
         user info: "Controllers utilize a programmable logic-based application that provides scanning and writing of data to and from the IO interface modules and communicates with the control system network via various communications methods, including serial and network communications."
         developer info: "https://collaborate.mitre.org/attackics/index.php/Field_Controller/RTU/PLC/IED"
       {
+      // Override view related attack steps (Impact) becase they are not relevant to this asset
+      | manipulationOfView @Override {I}
 
+      | denialOfView @Override {I}
+
+      | lossOfView @Override {I}
       }
 
 }
