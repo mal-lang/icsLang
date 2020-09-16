@@ -37,7 +37,7 @@ category ComputeResources {
             moduleFirmware,
             systemFirmware
 
-      | fullAccess @Override {C,I,A}
+      | fullAccess @Override
         +>  lossOfSafety,
             lossOfControl,
             lossOfAvailability
@@ -127,13 +127,13 @@ category ComputeResources {
         +>  normalOperation
 
       | fullAccess @Override
-        +>  normalOperation,
-            manipulationOfControl,
-            manipulationOfView
+        +>  normalOperation
 
       | normalOperation
-        user info: "The state where the OP component is operating normaly or so it seems."
+        user info: "The state where the OP component is operating normaly or seems to be operating normaly."
         developer info: "I am not sure if we need this. But I keep it to add one more vector that we can model! (Sotirios)"
+        ->  manipulationOfControl,
+            manipulationOfView
 
       | restrictedOperation {I,A}
         user info: "When the OP component is compromised the operation of it is affected."
@@ -254,8 +254,8 @@ category ComputeResources {
   category DataResources {
 
     asset Signal
-      user info: "A signal represents a dataflow or command that is sent between two assets but the medium over which is transmitted is not relevant to the model."
-      modeler info: "In the case where data or commands are transmitted over a known medium, the Data asset and the DataInTransit association should be used instead."
+      user info: "A signal represents a command that is sent between two assets but the medium over which is transmitted is not relevant to the model."
+      modeler info: "In the case where data or information are transmitted over a known medium, the Data asset and the DataInTransit association should be used instead."
       developer info: "The basic attack steps of this asset were inspired by the attack steps of the data asset in coreLang."
     {
       // Basic attack steps below

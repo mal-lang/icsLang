@@ -5,11 +5,11 @@ category IcsInterfaceResources{
         developer info: "https://collaborate.mitre.org/attackics/index.php/Data_Historian"
       {
       // Override control related attack steps (Impact) because they are not relevant to this asset
-      | denialOfControl @Override {A}
+      | denialOfControl @Override
 
-      | manipulationOfControl @Override {I,A}
+      | manipulationOfControl @Override
 
-      | lossOfControl @Override {I}
+      | lossOfControl @Override
       }
 
 }

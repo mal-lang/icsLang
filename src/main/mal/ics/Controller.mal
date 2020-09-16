@@ -5,11 +5,11 @@ category IcsControlResources{
         developer info: "https://collaborate.mitre.org/attackics/index.php/Field_Controller/RTU/PLC/IED"
       {
       // Override view related attack steps (Impact) becase they are not relevant to this asset
-      | manipulationOfView @Override {I}
+      | manipulationOfView @Override
 
-      | denialOfView @Override {I}
+      | denialOfView @Override
 
-      | lossOfView @Override {I}
+      | lossOfView @Override
       }
 
 }
