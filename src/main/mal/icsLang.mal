@@ -42,7 +42,7 @@ category ComputeResources {
             lossOfControl,
             lossOfAvailability
 
-      & replicationThroughRemovableMedia [Exponential(0.01)]
+      & replicationThroughRemovableMedia [HardAndUncertain]
         user info: "An adversary can get access by copying malware to removable media which is inserted into the control systems environment."
         developer info: "MITRE ATT&CK ICS T847."
         modeler info: "The probability fucntion and its value is just an estimation!"
@@ -53,7 +53,7 @@ category ComputeResources {
         developer info: "Mitigation was inspired by Sotirios."
         ->  replicationThroughRemovableMedia
 
-      & supplyChainAttack [Exponential(0.001)]
+      & supplyChainAttack [VeryHardAndUncertain]
         user info: "Adversaries may perform supply chain compromise to gain control systems environment access by means of infected products, software, and workflows."
         developer info: "MITRE ATT&CK ICS T862."
         modeler info: "The probability fucntion and its value is just an estimation!"
