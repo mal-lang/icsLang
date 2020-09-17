@@ -10,6 +10,10 @@ category IcsControlResources{
       | denialOfView @Override
 
       | lossOfView @Override
+
+      # physicalLock
+        user info: "A controller can have a phyisical lock in place that disallows modifications on the programmable logic, thus making it invulnerable to manipulations."
+        ->  attemptManipulation
       }
 
 }

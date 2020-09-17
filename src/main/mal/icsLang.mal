@@ -127,13 +127,13 @@ category ComputeResources {
         +>  normalOperation
 
       | fullAccess @Override
-        +>  normalOperation
+        +>  normalOperation,
+            attemptManipulation
 
       | normalOperation
-        user info: "The state where the OP component is operating normaly or seems to be operating normaly."
+        user info: "The state where the OP component is operating normaly or seems to be operating normaly (but is undetectably manipulated within the safety limits)."
         developer info: "I am not sure if we need this. But I keep it to add one more vector that we can model! (Sotirios)"
-        ->  manipulationOfControl,
-            manipulationOfView
+        ->  attemptManipulation
 
       | restrictedOperation {I,A}
         user info: "When the OP component is compromised the operation of it is affected."
@@ -147,6 +147,11 @@ category ComputeResources {
             lossOfControl,
             lossOfView,
             lossOfAvailability
+
+      & attemptManipulation [HardAndUncertain]
+        user info: "If an applicaiton is operating normaly it could even be the case that it is elaborately manipulated by an adversary."
+        ->  manipulationOfControl,
+            manipulationOfView
 
       // Control related attack steps (Impact)
       | denialOfControl {A}
