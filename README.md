@@ -129,3 +129,13 @@ All files distributed in the icsLang project are licensed under the [Apache Lice
 | [`User.svg`](src/main/resources/icons/User.svg) | <img src="src/main/resources/icons/User.svg" alt="User.svg" width="32" height="32"/> "[User](https://thenounproject.com/term/user/581261/)" icon by [✦ Shmidt Sergey ✦](https://thenounproject.com/monstercritic/) from [the Noun Project](https://thenounproject.com/) is licensed under [CC BY 3.0](https://creativecommons.org/licenses/by/3.0/). |
 
 See [`LICENSE`](LICENSE) and [`NOTICE`](NOTICE) for details.
+
+- - - -
+This is a project run by the [Software Systems Architecture and Security reseach
+group](https://www.kth.se/nse/research/software-systems-architecture-and-security/)
+within the [Division of Network and Systems Engineering](https://kth.se/nse) at
+the Department of Computer Science at the School of [Electrical Engineering and
+Computer Science](https://www.kth.se/en/eecs) @ [KTH university](https://www.kth.se).
+
+For more of our projects, see the [SSAS page at
+github.com](https://github.com/KTH-SSAS).
