@@ -322,9 +322,6 @@ limitations under the License.
                 <descriptors>
                   <descriptor>${project.basedir}/src/assembly/source.xml</descriptor>
                 </descriptors>
-                <descriptorRefs>
-                  <descriptorRef>jar-with-dependencies</descriptorRef>
-                </descriptorRefs>
               </configuration>
             </execution>
           </executions>
