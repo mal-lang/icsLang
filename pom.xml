@@ -142,7 +142,7 @@ limitations under the License.
         <plugin>
           <groupId>org.apache.maven.plugins</groupId>
           <artifactId>maven-resources-plugin</artifactId>
-          <version>3.1.0</version>
+          <version>3.2.0</version>
         </plugin>
         <plugin>
           <groupId>org.apache.maven.plugins</groupId>
@@ -163,7 +163,7 @@ limitations under the License.
         <plugin>
           <groupId>org.apache.maven.plugins</groupId>
           <artifactId>maven-surefire-plugin</artifactId>
-          <version>3.0.0-M4</version>
+          <version>3.0.0-M5</version>
         </plugin>
         <plugin>
           <groupId>org.apache.maven.plugins</groupId>
@@ -199,6 +199,11 @@ limitations under the License.
           <configuration>
             <skip>true</skip>
           </configuration>
+        </plugin>
+        <plugin>
+          <groupId>org.apache.maven.plugins</groupId>
+          <artifactId>maven-antrun-plugin</artifactId>
+          <version>3.0.0</version>
         </plugin>
         <plugin>
           <groupId>org.mal-lang</groupId>
@@ -242,51 +247,25 @@ limitations under the License.
       </plugin>
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-resources-plugin</artifactId>
+        <artifactId>maven-antrun-plugin</artifactId>
         <executions>
           <execution>
-            <id>copy-sources</id>
+            <id>prepare-mal-root</id>
             <phase>generate-sources</phase>
             <goals>
-              <goal>copy-resources</goal>
+              <goal>run</goal>
             </goals>
             <configuration>
-              <outputDirectory>${mal.root}</outputDirectory>
-              <resources>
-                <resource>
-                  <directory>${project.basedir}/src/main/mal</directory>
-                </resource>
-              </resources>
-            </configuration>
-          </execution>
-          <execution>
-            <id>copy-icons</id>
-            <phase>generate-sources</phase>
-            <goals>
-              <goal>copy-resources</goal>
-            </goals>
-            <configuration>
-              <outputDirectory>${mal.root}/icons</outputDirectory>
-              <resources>
-                <resource>
-                  <directory>${project.basedir}/src/main/resources/icons</directory>
-                </resource>
-              </resources>
-            </configuration>
-          </execution>
-          <execution>
-            <id>copy-parent-icons</id>
-            <phase>generate-sources</phase>
-            <goals>
-              <goal>copy-resources</goal>
-            </goals>
-            <configuration>
-              <outputDirectory>${mal.root}/icons</outputDirectory>
-              <resources>
-                <resource>
-                  <directory>${mal.root}/org.mal-lang.coreLang/icons</directory>
-                </resource>
-              </resources>
+              <target>
+                <delete dir="${mal.root}/icons"/>
+                <move file="${mal.root}/org.mal-lang.coreLang/icons" tofile="${mal.root}/icons" overwrite="true"/>
+                <copy todir="${mal.root}" overwrite="true">
+                  <fileset dir="${project.basedir}/src/main/mal"/>
+                </copy>
+                <copy todir="${mal.root}/icons" overwrite="true">
+                  <fileset dir="${project.basedir}/src/main/resources/icons"/>
+                </copy>
+              </target>
             </configuration>
           </execution>
         </executions>
