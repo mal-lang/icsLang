@@ -123,7 +123,7 @@ category ComputeResources {
      asset IcsApplication extends Application
       user info: "An ICS Application extends the coreLang's Application with OT attack vectors."
     {
-      & specificAccess @Override
+      | specificAccess @Override
         +>  normalOperation
 
       | fullAccess @Override

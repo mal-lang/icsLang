@@ -68,7 +68,7 @@ limitations under the License.
     <dependency>
       <groupId>org.mal-lang</groupId>
       <artifactId>corelang</artifactId>
-      <version>0.0.2</version>
+      <version>0.1.0</version>
     </dependency>
     <dependency>
       <groupId>org.junit.jupiter</groupId>
@@ -233,7 +233,7 @@ limitations under the License.
                 <artifactItem>
                   <groupId>org.mal-lang</groupId>
                   <artifactId>corelang</artifactId>
-                  <version>0.0.2</version>
+                  <version>0.1.0</version>
                   <type>jar</type>
                   <classifier>source</classifier>
                   <overWrite>true</overWrite>
