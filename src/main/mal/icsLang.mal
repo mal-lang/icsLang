@@ -45,7 +45,7 @@ category ComputeResources {
       & replicationThroughRemovableMedia [HardAndUncertain]
         user info: "An adversary can get access by copying malware to removable media which is inserted into the control systems environment."
         developer info: "MITRE ATT&CK ICS T847."
-        modeler info: "The probability fucntion and its value is just an estimation!"
+        modeler info: "The probability function and its value is just an estimation!"
         ->  bypassAccessControl
 
       # disallowRemovableMedia
@@ -164,7 +164,7 @@ category ComputeResources {
             attemptManipulation
 
       | normalOperation
-        user info: "The state where the operational component is operating normaly or seems to be operating normaly (but is undetectably manipulated within the safety limits)."
+        user info: "The state where the operational component is operating normally or seems to be operating normally (but is undetectably manipulated within the safety limits)."
         developer info: "I am not sure if we need this. But I keep it to add one more vector that we can model! (Sotirios)"
         ->  attemptManipulation
 
@@ -182,7 +182,7 @@ category ComputeResources {
             hostSystem[IcsSystem].lossOfAvailability
 
       & attemptManipulation [HardAndUncertain]
-        user info: "If an applicaiton is operating normaly it could even be the case that it is elaborately manipulated by an adversary."
+        user info: "If an application is operating normally it could even be the case that it is elaborately manipulated by an adversary."
         ->  manipulationOfControl,
             manipulationOfView
 
