@@ -109,7 +109,7 @@ category ComputeResources {
         ->  shutdown
 
       | attemptUnsafeState @hidden [Bernoulli(0.1)]
-        developer info: "This attack step models the possibility that a naturally occurring unsafe state is reached if there is a loss/denial of control or view. The specific probability should be researched more and maybe defined by the modeller. WARNING: The current implementation is incorrect. The unsafe state should only be reached if the preemptive shutdown did not occur."
+        developer info: "This attack step models the possibility that a naturally occurring unsafe state is reached if there is a loss/denial of control or view. The specific probability should be researched more and maybe defined by the modeller."
         ->  unsafeState
 
       | unsafeState @hidden
