@@ -94,6 +94,11 @@ category ComputeResources {
       | deny @Override {A}
         +>  lossOfAvailability
 
+      !E sisConnected @hidden
+        developer info: "If the ICS system is not connected to an SIS the safety mechanisms should be disabled"
+        <-  sis
+        ->  safetyMechanismsOffline
+
       // Impact attack steps
       | attemptPreemptiveShutdown @hidden
         user info: "Intermediate attack step for modelling the possibility of detecting a disruption(loss/denial of Control/View) and preemptively shutting down the system in order to prevent damage."
@@ -129,7 +134,9 @@ category ComputeResources {
 
       | shutdown {A}
         user info: "Shutdown the system. Can be initiated by the attacker intentionally to disrupt the industrial process or unintentionally by tampering with system and accidentally triggering the safety shutdown procedures. If the staff detect anomalous behaviour and they can decide to preemptively shut the system down to prevent potential damage."
-        ->  lossOfAvailability
+        ->  lossOfAvailability,
+            criticalParentSystem.propagateCriticalShutdown,
+            redundantParentSystem.propagateRedundantShutdown
 
       & damageToProperty {I, A}
         user info: "Adversaries may cause damage and destruction of property to infrastructure, equipment, and the surrounding environment when attacking control systems."
@@ -140,16 +147,57 @@ category ComputeResources {
       | lossOfControl {I}
         user info: "Adversaries may seek to achieve a sustained loss of control or a runaway condition in which operators cannot issue any commands even if the malicious interference has subsided."
         developer info: "MITRE ATT&CK ICS T827."
-        ->  attemptPreemptiveShutdown
+        ->  attemptPreemptiveShutdown,
+            criticalParentSystem.propagateCriticalLossOfControl,
+            redundantParentSystem.propagateRedundantLossOfControl
 
       | lossOfAvailability {A}
         user info: "Adversaries may attempt to disrupt essential components or systems to prevent owner and operator from delivering products or services."
         developer info: "MITRE ATT&CK ICS T826."
-        ->  lossOfProductivityAndRevenue
+        ->  lossOfProductivityAndRevenue,
+            criticalParentSystem.propagateCriticalLossOfAvailability,
+            redundantParentSystem.propagateRedundantLossOfAvailability
 
       | lossOfProductivityAndRevenue
         user info: "Adversaries may cause loss of productivity and revenue through disruption and even damage to the availability and integrity of control system operations, devices, and related processes."
         developer info: "MITRE ATT&CK ICS T828."
+        ->  criticalParentSystem.propagateCriticalLossOfProductivityAndRevenue,
+            redundantParentSystem.propagateRedundantLossOfProductivityAndRevenue
+
+      // Propagate subsystems attack steps
+      // Critical subsystems
+      | propagateCriticalShutdown @hidden
+        user info: "Propagate shutdown to the parent system if any of the critical subsystems experience a shutdown"
+        -> shutdown
+
+      | propagateCriticalLossOfControl @hidden
+        user info: "Propagate loss of control to the parent system if any of the critical subsystems experience a loss of control"
+        -> lossOfControl
+
+      | propagateCriticalLossOfAvailability @hidden
+        user info: "Propagate loss of availability to the parent system if any of the critical subsystems experience a loss of availability"
+        -> lossOfAvailability
+
+      | propagateCriticalLossOfProductivityAndRevenue @hidden
+        user info: "Propagate loss of productivity and revenue to the parent system if any of the critical subsystems experience a loss of productivity and revenue"
+        -> lossOfProductivityAndRevenue
+
+      // Redundant subsystems
+      & propagateRedundantShutdown @hidden
+        user info: "Propagate shutdown to the parent system if all of the redundant subsystems experience a shutdown"
+        -> shutdown
+
+      & propagateRedundantLossOfControl @hidden
+        user info: "Propagate loss of control to the parent system if all of the redundant subsystems experience a loss of control"
+        -> lossOfControl
+
+      & propagateRedundantLossOfAvailability @hidden
+        user info: "Propagate loss of availability to the parent system if all of the redundant subsystems experience a loss of availability"
+        -> lossOfAvailability
+
+      & propagateRedundantLossOfProductivityAndRevenue @hidden
+        user info: "Propagate loss of productivity and revenue to the parent system if all of the redundant subsystems experience a loss of productivity and revenue"
+        -> lossOfProductivityAndRevenue
 
     }
 
@@ -391,22 +439,30 @@ category ComputeResources {
   }
 
 associations {
-  IcsApplication [signalSourceApp]    * <-- AppTransmittedSignal  --> *     [transmittedSignal] Signal
+  IcsSystem [criticalParentSystem]  0..1 <-- CriticalSubsystem     --> *     [criticalSubsystems]     IcsSystem
+      user info: "IcsSystems can be nested, a disruption in any of the critical subsystems will be triggered in the parent system as well."
+  IcsSystem [redundantParentSystem] 0..1 <-- RedundantSubsystem    --> *     [redundantSubsystems]    IcsSystem
+      user info: "IcsSystems can be nested, a disruption will propagate to the parent system only if all of the redundant subsystems are affected by it."
+  IcsSystem    [safeguardedSystem]  0..1 <-- SafetyControls        --> 0..1  [sis]            SIS
+      user info: "An IcsSystem can have an SIS assigned to it to ensure that it is operating within safe parameters and act if it is not."
+  IcsApplication [signalSourceApp]     * <-- AppTransmittedSignal  --> *     [transmittedSignal] Signal
       user info: "Any ics application can transmit a signal."
-  IcsApplication [signalDestApp]      * <-- AppReceivedSignal     --> *     [receivedSignal] Signal
+  IcsApplication [signalDestApp]       * <-- AppReceivedSignal     --> *     [receivedSignal] Signal
       user info: "Any ics application can receive/consume a signal."
-  Sensor         [signalSensor]       * <-- SensorSignal          --> *     [signal]         Signal
+  Sensor         [signalSensor]        * <-- SensorSignal          --> *     [signal]         Signal
       user info: "Any sensor can be associated with a signal over which it can send data."
-  Actuator       [signalActuator]     * <-- ActuatorSignal        --> *     [signal]         Signal
+  Sensor         [sysSensor]           * <-- SensorBelongsTo       --> *     [system]         IcsSystem
+      user info: "A sensor can be associated with a system where it measures a specific parameter."
+  Actuator       [signalActuator]      * <-- ActuatorSignal        --> *     [signal]         Signal
       user info: "An actuator can be associated with a signal from which it receives data/commands."
-  Actuator       [sysActuator]        * <-- AcuatorBelongsTo      --> *     [system]         IcsSystem
+  Actuator       [sysActuator]         * <-- AcuatorBelongsTo      --> *     [system]         IcsSystem
       user info: "An actuator can be associated with a system on which it actuates."
-  IcsApplication [synchronizedApp]    * <-- SynchronizationModule --> 0..1  [synchronizationModule]    SynchronizationModule
+  IcsApplication [synchronizedApp]     * <-- SynchronizationModule --> 0..1  [synchronizationModule]    SynchronizationModule
       user info: "Any ics application can have one synchronization module to provide synchronization on the signals sent."
-  Signal         [encryptedSignal]    * <-- EncryptionCredentials --> 0..1  [encryptCreds]   Credentials
+  Signal         [encryptedSignal]     * <-- EncryptionCredentials --> 0..1  [encryptCreds]   Credentials
       user info: "Encrypted signal can be associated with the relevant encryption credentials."
-  Signal         [containerSignal]    * <-- DataContainment       --> *     [containedData]  Data
+  Signal         [containerSignal]     * <-- DataContainment       --> *     [containedData]  Data
       user info: "Data can be contained inside a signal."
-  Signal         [containerSignal]    * <-- InfoContainment       --> *     [information]    Information
+  Signal         [containerSignal]     * <-- InfoContainment       --> *     [information]    Information
       user info: "A signal can contain information."
 }
