@@ -7,8 +7,6 @@ category IcsControlResources{
       // Override view related attack steps (Impact) becase they are not relevant to this asset
       | manipulationOfView @Override
 
-      | denialOfView @Override
-
       | lossOfView @Override
       }
 
