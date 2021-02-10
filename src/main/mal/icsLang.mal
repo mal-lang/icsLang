@@ -259,7 +259,7 @@ category ComputeResources {
       | normalOperation
         user info: "The state where the operational component is operating normally or seems to be operating normally (but is undetectably manipulated within the safety limits)."
         developer info: "I am not sure if we need this. But I keep it to add one more vector that we can model! (Sotirios)"
-        ->  attemptManipulation
+        ->  attemptCovertManipulation
 
       | restrictedOperation {I,A}
         user info: "When the operational component is compromised, the operation of it is affected."
@@ -272,8 +272,15 @@ category ComputeResources {
             lossOfView,
             hostSystem[IcsSystem].lossOfAvailability
 
-      & attemptManipulation [HardAndUncertain]
+      & attemptCovertManipulation [HardAndUncertain]
         user info: "If an application is operating normally it could even be the case that it is elaborately manipulated by an adversary."
+        ->  attemptManipulation
+
+      | attemptManipulation
+        user info: "The adversary is actively manipulating the system outside of normal operating parameters."
+        ->  manipulate
+
+      & manipulate @hidden
         ->  manipulationOfControl,
             manipulationOfView
 

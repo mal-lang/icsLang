@@ -4,7 +4,17 @@ category IcsControlResources{
         user info: "The engineering workstation is usually a high-end very reliable computing platform designed for configuration, maintenance and diagnostics of the control system applications and other control system equipment."
         developer info: "https://collaborate.mitre.org/attackics/index.php/Engineering_Workstation"
       {
+        | fullAccess @Override
+          +> reprogramControllers
 
+        | reprogramControllers
+          user info: "Reprogram all of the controllers that the engineering station has access to."
+          ->  programmableControllers.attemptManipulation
       }
 
+}
+
+associations {
+  EngineeringWorkstation [programmingWorkstations]  * <-- programLogic     --> *   [programmableControllers] Controller
+      user info: "Engineering workstations are responsible for programming the logic on controllers used both in the industrial control processes and the safety systems."
 }

@@ -4,9 +4,10 @@ category IcsControlResources{
         user info: "Controllers utilize a programmable logic-based application that provides scanning and writing of data to and from the IO interface modules and communicates with the control system network via various communications methods, including serial and network communications."
         developer info: "https://collaborate.mitre.org/attackics/index.php/Field_Controller/RTU/PLC/IED"
       {
-      # physicalLock
-        user info: "A controller can have a phyisical lock in place that disallows modifications on the programmable logic, thus making it invulnerable to manipulations."
-        ->  attemptManipulation
+        # physicalLock
+          user info: "A controller can have a physical lock in place that disallows modifications on the programmable logic, thus making it invulnerable to manipulations."
+          ->  manipulate
+
       }
 
 }
