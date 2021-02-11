@@ -197,7 +197,7 @@ category ComputeResources {
 
       | propagateCriticalLossOfView @hidden
         user info: "Propagate loss of view to the parent system if any of the critical subsystems experience a loss of view"
-        -> manipulationOfView
+        -> lossOfView
 
       | propagateCriticalManipulationOfControl @hidden
         user info: "Propagate manipulation of control to the parent system if any of the critical subsystems experience a manipulation of control"
