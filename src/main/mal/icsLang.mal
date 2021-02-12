@@ -40,7 +40,9 @@ category ComputeResources {
       | fullAccess @Override
         +>  lossOfSafety,
             lossOfControl,
-            lossOfAvailability
+            lossOfAvailability,
+            manipulationOfView,
+            manipulationOfControl
 
       & replicationThroughRemovableMedia [HardAndUncertain]
         user info: "An adversary can get access by copying malware to removable media which is inserted into the control systems environment."
