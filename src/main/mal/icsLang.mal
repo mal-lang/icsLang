@@ -292,6 +292,8 @@ category ComputeResources {
         developer info: "MITRE ATT&CK ICS T831."
         ->  restrictedOperation,
             transmittedSignal.manipulateSignal,
+            transmittedControlData.attemptWrite,
+            hostSystem[IcsSystem].manipulationOfControl,
             hostSystem[IcsSystem].unsafeState
 
       | lossOfControl {A}
@@ -299,6 +301,8 @@ category ComputeResources {
         developer info: "MITRE ATT&CK ICS T827."
         ->  restrictedOperation,
             transmittedSignal.blockSignal,
+            transmittedControlData.attemptDeny,
+            hostSystem[IcsSystem].lossOfControl,
             hostSystem[IcsSystem].attemptPreemptiveShutdown
 
       // View related attack steps (Impact)
@@ -307,12 +311,17 @@ category ComputeResources {
         developer info: "MITRE ATT&CK ICS T832."
         ->  restrictedOperation,
             transmittedSignal.manipulateSignal,
+            transmittedData.attemptWrite,
+            hostSystem[IcsSystem].manipulationOfView,
             hostSystem[IcsSystem].unsafeState
 
       | lossOfView {A}
         user info: "Adversaries may cause a sustained or permanent loss of view where the ICS equipment will require local, hands-on operator intervention."
         developer info: "MITRE ATT&CK ICS T829."
         ->  restrictedOperation,
+            transmittedSignal.blockSignal,
+            transmittedData.attemptDeny,
+            hostSystem[IcsSystem].lossOfView,
             hostSystem[IcsSystem].attemptPreemptiveShutdown
 
       // Other types of Impact
@@ -330,6 +339,8 @@ category ComputeResources {
         user info: "Attacker has physical access on the location where the sensor is physically deployed."
         ->  signal.manipulateSignal,
             signal.blockSignal,
+            data.attemptWrite,
+            data.attemptDeny,
             system.lossOfView,
             system.manipulationOfView
     }
@@ -340,12 +351,14 @@ category ComputeResources {
       | manipulate {I, A}
         user info: "If the signal that is consumed by this actuator is manipulated then the actuator is also manipulated."
         developer info: "This will lead to manipulation of control on the associated system."
-        ->  system.manipulationOfControl
+        ->  data.attemptWrite,
+            system.manipulationOfControl
 
       | block {A}
         user info: "If the signal that is consumed by this actuator is blocked then the actuator is also blocked."
         developer info: "This will lead to loss of control and loss of availability on the associated system."
-        ->  system.lossOfControl,
+        ->  data.attemptDeny,
+            system.lossOfControl,
             system.lossOfAvailability
     }
 
@@ -375,8 +388,8 @@ category ComputeResources {
   category DataResources {
 
     asset Signal
-      user info: "A signal represents a command that is sent between two assets but the medium over which is transmitted is not relevant to the model."
-      modeler info: "In the case where data or information are transmitted over a known medium, the Data asset and the DataInTransit association should be used instead."
+      user info: "A signal represents information that is sent between two assets but the medium over which is transmitted is not relevant to the model."
+      modeler info: "In the case where data or information are transmitted over a known medium, the IcsData asset and the DataInTransit association should be used instead."
       developer info: "The basic attack steps of this asset were inspired by the attack steps of the data asset in coreLang."
     {
       // Basic attack steps below
@@ -467,15 +480,69 @@ category ComputeResources {
               applyControlSignalTooLate,
               applyControlSignalTooEarly,
               applyControlSignalNotLongEnough,
-              signalActuator.manipulate,
-              signalSourceApp.manipulationOfControl,
               signalDestApp.manipulationOfView
 
         | blockSignal
-          user info: "When an attacker block a signal from being sent/received."
+          user info: "When an attacker blocks a signal from being sent/received."
+          ->  signalDestApp.lossOfView
+    }
+
+    asset ControlSignal extends Signal
+      user info: "A ControlSignal represents control commands are sent between two assets but the medium over which is transmitted is not relevant to the model."
+      modeler info: "In the case where control commands are transmitted over a known medium, the IcsControlData asset and the DataInTransit association should be used instead."
+    {
+        | manipulateSignal @Override
+          user info: "When an attacker sends a false or manipulated signal."
+          ->  applyControlSignalTooLong,
+              applyControlSignalTooLate,
+              applyControlSignalTooEarly,
+              applyControlSignalNotLongEnough,
+              signalActuator.manipulate,
+              signalDestApp.manipulationOfControl
+
+        | blockSignal @Override
+          user info: "When an attacker blocks a signal from being sent/received."
           ->  signalActuator.block,
-              signalSourceApp.lossOfControl,
-              signalDestApp.lossOfView
+              signalDestApp.lossOfControl
+    }
+
+    asset IcsData extends Data
+      user info: "An ICS Data extends coreLang's Data with OT attack vectors and directionality for non-control information."
+      modeler info: "This data represents the non-control information sent over the OT network"
+    {
+        & write  @Override {I}
+          user info: "Modifying the data leads to a manipulation of view on the destination(s) and a manipulation of control on the source(s)"
+          +>  dataDestApp.manipulationOfView
+
+
+        & delete @Override {I, A}
+          user info: "Deleting the data leads to a loss of view on the destination(s) and a loss of control on the source(s)"
+          +>  dataDestApp.lossOfView
+
+        & deny @Override {A}
+          user info: "Denying access to the data leads to a loss of view on the destination(s) and a loss of control on the source(s)"
+          +>  dataDestApp.lossOfView
+    }
+
+    asset IcsControlData extends Data
+      user info: "An ICS Control Data extends coreLang's Data with OT attack vectors and directionality for control information."
+      modeler info: "This data represents the control information sent over the OT network"
+    {
+        & write  @Override {I}
+          user info: "Modifying the data leads to a manipulation of view on the destination(s) and a manipulation of control on the source(s)"
+          +>  dataActuator.manipulate,
+              dataDestApp.manipulationOfControl
+
+
+        & delete @Override {I, A}
+          user info: "Deleting the data leads to a loss of view on the destination(s) and a loss of control on the source(s)"
+          +>  dataActuator.block,
+              dataDestApp.lossOfControl
+
+        & deny @Override {A}
+          user info: "Denying access to the data leads to a loss of view on the destination(s) and a loss of control on the source(s)"
+          +>  dataActuator.block,
+              dataDestApp.lossOfControl
     }
   }
 
@@ -490,12 +557,24 @@ associations {
       user info: "Any ics application can transmit a signal."
   IcsApplication [signalDestApp]       * <-- AppReceivedSignal     --> *     [receivedSignal] Signal
       user info: "Any ics application can receive/consume a signal."
+  IcsApplication [dataSourceApp]       * <-- AppTransmittedData    --> *     [transmittedData] IcsData
+      user info: "Any ics application can transmit data."
+  IcsApplication [dataDestApp]         * <-- AppReceivedData       --> *     [receivedData]   IcsData
+      user info: "Any ics application can receive/consume data."
+  IcsApplication [dataSourceApp]       * <-- AppTransmittedData    --> *     [transmittedControlData] IcsControlData
+      user info: "Any ics application can transmit control data."
+  IcsApplication [dataDestApp]         * <-- AppReceivedData       --> *     [receivedControlData]   IcsControlData
+      user info: "Any ics application can receive/consume control data."
   Sensor         [signalSensor]        * <-- SensorSignal          --> *     [signal]         Signal
       user info: "Any sensor can be associated with a signal over which it can send data."
+  Sensor         [dataSensor]          * <-- SensorData            --> *     [data]           IcsData
+      user info: "Any sensor can be associated with data it sends."
   Sensor         [sysSensor]           * <-- SensorBelongsTo       --> *     [system]         IcsSystem
       user info: "A sensor can be associated with a system where it measures a specific parameter."
-  Actuator       [signalActuator]      * <-- ActuatorSignal        --> *     [signal]         Signal
-      user info: "An actuator can be associated with a signal from which it receives data/commands."
+  Actuator       [signalActuator]      * <-- ActuatorSignal        --> *     [signal]         ControlSignal
+      user info: "An actuator can be associated with a signal from which it receives commands."
+  Actuator       [dataActuator]        * <-- ActuatorData          --> *     [data]           IcsControlData
+      user info: "An actuator can be associated with data that contain commands."
   Actuator       [sysActuator]         * <-- AcuatorBelongsTo      --> *     [system]         IcsSystem
       user info: "An actuator can be associated with a system on which it actuates."
   IcsApplication [synchronizedApp]     * <-- SynchronizationModule --> 0..1  [synchronizationModule]    SynchronizationModule
