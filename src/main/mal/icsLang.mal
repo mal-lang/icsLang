@@ -461,26 +461,9 @@ category ComputeResources {
           user info: "The attacker can delete the data."
           ->  containedData.attemptDelete
 
-        // STPA-SafeSec related attack steps (Those four need to be differentiated somehow)
-        | applyControlSignalTooEarly
-          ->  signalDestApp.manipulationOfControl
-
-        | applyControlSignalTooLate
-          ->  signalDestApp.manipulationOfControl
-
-        | applyControlSignalTooLong
-          ->  signalDestApp.manipulationOfControl
-
-        | applyControlSignalNotLongEnough
-          ->  signalDestApp.manipulationOfControl
-
         | manipulateSignal
           user info: "When an attacker sends a false or manipulated signal."
-          ->  applyControlSignalTooLong,
-              applyControlSignalTooLate,
-              applyControlSignalTooEarly,
-              applyControlSignalNotLongEnough,
-              signalDestApp.manipulationOfView
+          ->  signalDestApp.manipulationOfView
 
         | blockSignal
           user info: "When an attacker blocks a signal from being sent/received."
@@ -493,11 +476,7 @@ category ComputeResources {
     {
         | manipulateSignal @Override
           user info: "When an attacker sends a false or manipulated signal."
-          ->  applyControlSignalTooLong,
-              applyControlSignalTooLate,
-              applyControlSignalTooEarly,
-              applyControlSignalNotLongEnough,
-              signalActuator.manipulate,
+          ->  signalActuator.manipulate,
               signalDestApp.manipulationOfControl
 
         | blockSignal @Override
