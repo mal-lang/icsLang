@@ -351,15 +351,12 @@ category ComputeResources {
       | manipulate {I, A}
         user info: "If the signal that is consumed by this actuator is manipulated then the actuator is also manipulated."
         developer info: "This will lead to manipulation of control on the associated system."
-        ->  data.attemptWrite,
-            system.manipulationOfControl
+        ->  system.manipulationOfControl
 
       | block {A}
         user info: "If the signal that is consumed by this actuator is blocked then the actuator is also blocked."
         developer info: "This will lead to loss of control and loss of availability on the associated system."
-        ->  data.attemptDeny,
-            system.lossOfControl,
-            system.lossOfAvailability
+        ->  system.lossOfControl
     }
 
     asset SynchronizationModule
