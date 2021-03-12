@@ -291,7 +291,7 @@ category ComputeResources {
         user info: "Adversaries may manipulate control systems devices or possibly leverage their own, to communicate with and command physical control processes."
         developer info: "MITRE ATT&CK ICS T831."
         ->  restrictedOperation,
-            transmittedSignal.manipulateSignal,
+            transmittedControlSignal.manipulateSignal,
             transmittedControlData.attemptWrite,
             hostSystem[IcsSystem].manipulationOfControl,
             hostSystem[IcsSystem].unsafeState
@@ -300,7 +300,7 @@ category ComputeResources {
         user info: "Adversaries may seek to achieve a sustained loss of control or a runaway condition in which operators cannot issue any commands even if the malicious interference has subsided."
         developer info: "MITRE ATT&CK ICS T827."
         ->  restrictedOperation,
-            transmittedSignal.blockSignal,
+            transmittedControlSignal.blockSignal,
             transmittedControlData.attemptDeny,
             hostSystem[IcsSystem].lossOfControl,
             hostSystem[IcsSystem].attemptPreemptiveShutdown
@@ -477,12 +477,12 @@ category ComputeResources {
         | manipulateSignal @Override
           user info: "When an attacker sends a false or manipulated signal."
           ->  signalActuator.manipulate,
-              signalDestApp.manipulationOfControl
+              controlSignalDestApp.manipulationOfControl
 
         | blockSignal @Override
           user info: "When an attacker blocks a signal from being sent/received."
           ->  signalActuator.block,
-              signalDestApp.lossOfControl
+              controlSignalDestApp.lossOfControl
     }
 
     asset IcsData extends Data
@@ -526,42 +526,46 @@ category ComputeResources {
   }
 
 associations {
-  IcsSystem [criticalParentSystem]  0..1 <-- CriticalSubsystem     --> *     [criticalSubsystems]     IcsSystem
+  IcsSystem [criticalParentSystem]     0..1 <-- CriticalSubsystem           --> *     [criticalSubsystems]     IcsSystem
       user info: "IcsSystems can be nested, a disruption in any of the critical subsystems will be triggered in the parent system as well."
-  IcsSystem [redundantParentSystem] 0..1 <-- RedundantSubsystem    --> *     [redundantSubsystems]    IcsSystem
+  IcsSystem [redundantParentSystem]    0..1 <-- RedundantSubsystem          --> *     [redundantSubsystems]    IcsSystem
       user info: "IcsSystems can be nested, a disruption will propagate to the parent system only if all of the redundant subsystems are affected by it."
-  IcsSystem    [safeguardedSystem]  0..1 <-- SafetyControls        --> 0..1  [sis]            SIS
+  IcsSystem    [safeguardedSystem]     0..1 <-- SafetyControls              --> 0..1  [sis]            SIS
       user info: "An IcsSystem can have an SIS assigned to it to ensure that it is operating within safe parameters and act if it is not."
-  IcsApplication [signalSourceApp]     * <-- AppTransmittedSignal  --> *     [transmittedSignal] Signal
+  IcsApplication [signalSourceApp]        * <-- AppTransmittedSignal        --> *     [transmittedSignal] Signal
       user info: "Any ics application can transmit a signal."
-  IcsApplication [signalDestApp]       * <-- AppReceivedSignal     --> *     [receivedSignal] Signal
+  IcsApplication [signalDestApp]          * <-- AppReceivedSignal           --> *     [receivedSignal] Signal
       user info: "Any ics application can receive/consume a signal."
-  IcsApplication [dataSourceApp]       * <-- AppTransmittedData    --> *     [transmittedData] IcsData
+  IcsApplication [controlSignalSourceApp] * <-- AppTransmittedControlSignal --> *     [transmittedControlSignal] ControlSignal
+      user info: "Any ics application can transmit a signal."
+  IcsApplication [controlSignalDestApp]   * <-- AppReceivedControlSignal    --> *     [receivedControlSignal] ControlSignal
+      user info: "Any ics application can receive/consume a signal."
+  IcsApplication [dataSourceApp]         * <-- AppTransmittedData           --> *     [transmittedData] IcsData
       user info: "Any ics application can transmit data."
-  IcsApplication [dataDestApp]         * <-- AppReceivedData       --> *     [receivedData]   IcsData
+  IcsApplication [dataDestApp]           * <-- AppReceivedData              --> *     [receivedData]   IcsData
       user info: "Any ics application can receive/consume data."
-  IcsApplication [dataSourceApp]       * <-- AppTransmittedData    --> *     [transmittedControlData] IcsControlData
+  IcsApplication [dataSourceApp]         * <-- AppTransmittedData           --> *     [transmittedControlData] IcsControlData
       user info: "Any ics application can transmit control data."
-  IcsApplication [dataDestApp]         * <-- AppReceivedData       --> *     [receivedControlData]   IcsControlData
+  IcsApplication [dataDestApp]           * <-- AppReceivedData              --> *     [receivedControlData]   IcsControlData
       user info: "Any ics application can receive/consume control data."
-  Sensor         [signalSensor]        * <-- SensorSignal          --> *     [signal]         Signal
+  Sensor         [signalSensor]          * <-- SensorSignal                 --> *     [signal]         Signal
       user info: "Any sensor can be associated with a signal over which it can send data."
-  Sensor         [dataSensor]          * <-- SensorData            --> *     [data]           IcsData
+  Sensor         [dataSensor]            * <-- SensorData                   --> *     [data]           IcsData
       user info: "Any sensor can be associated with data it sends."
-  Sensor         [sysSensor]           * <-- SensorBelongsTo       --> *     [system]         IcsSystem
+  Sensor         [sysSensor]             * <-- SensorBelongsTo              --> *     [system]         IcsSystem
       user info: "A sensor can be associated with a system where it measures a specific parameter."
-  Actuator       [signalActuator]      * <-- ActuatorSignal        --> *     [signal]         ControlSignal
+  Actuator       [signalActuator]        * <-- ActuatorSignal               --> *     [signal]         ControlSignal
       user info: "An actuator can be associated with a signal from which it receives commands."
-  Actuator       [dataActuator]        * <-- ActuatorData          --> *     [data]           IcsControlData
+  Actuator       [dataActuator]          * <-- ActuatorData                 --> *     [data]           IcsControlData
       user info: "An actuator can be associated with data that contain commands."
-  Actuator       [sysActuator]         * <-- AcuatorBelongsTo      --> *     [system]         IcsSystem
+  Actuator       [sysActuator]           * <-- AcuatorBelongsTo             --> *     [system]         IcsSystem
       user info: "An actuator can be associated with a system on which it actuates."
-  IcsApplication [synchronizedApp]     * <-- SynchronizationModule --> 0..1  [synchronizationModule]    SynchronizationModule
+  IcsApplication [synchronizedApp]       * <-- SynchronizationModule        --> 0..1  [synchronizationModule]    SynchronizationModule
       user info: "Any ics application can have one synchronization module to provide synchronization on the signals sent."
-  Signal         [encryptedSignal]     * <-- EncryptionCredentials --> 0..1  [encryptCreds]   Credentials
+  Signal         [encryptedSignal]       * <-- EncryptionCredentials        --> 0..1  [encryptCreds]   Credentials
       user info: "Encrypted signal can be associated with the relevant encryption credentials."
-  Signal         [containerSignal]     * <-- DataContainment       --> *     [containedData]  Data
+  Signal         [containerSignal]       * <-- DataContainment              --> *     [containedData]  Data
       user info: "Data can be contained inside a signal."
-  Signal         [containerSignal]     * <-- InfoContainment       --> *     [information]    Information
+  Signal         [containerSignal]       * <-- InfoContainment              --> *     [information]    Information
       user info: "A signal can contain information."
 }
