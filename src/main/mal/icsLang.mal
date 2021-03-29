@@ -138,7 +138,11 @@ category ComputeResources {
         user info: "Shutdown the system. Can be initiated by the attacker intentionally to disrupt the industrial process or unintentionally by tampering with system and accidentally triggering the safety shutdown procedures. If the staff detect anomalous behaviour and they can decide to preemptively shut the system down to prevent potential damage."
         ->  lossOfAvailability,
             criticalParentSystem.propagateCriticalShutdown,
-            redundantParentSystem.propagateRedundantShutdown
+            triggerPropagateRedundantShutdown
+
+      | triggerPropagateRedundantShutdown @hidden
+        developer info: "This is an intermediary step required for the situation where SIS redundant subsystems are disabled."
+        ->  redundantParentSystem.propagateRedundantShutdown
 
       & damageToProperty {I, A}
         user info: "Adversaries may cause damage and destruction of property to infrastructure, equipment, and the surrounding environment when attacking control systems."
@@ -245,6 +249,16 @@ category ComputeResources {
       & propagateRedundantLossOfProductivityAndRevenue @hidden
         user info: "Propagate loss of productivity and revenue to the parent system if all of the redundant subsystems experience a loss of productivity and revenue"
         -> lossOfProductivityAndRevenue
+
+      # notDisabled [Enabled]
+        developer info: "The probability that a particular IcsSystem is not actually present."
+        modeler info: "The use case for this is removing some of the IcsSystems used to provide redundancy."
+        -> lossOfControl,
+           lossOfView,
+           lossOfAvailability,
+           lossOfProductivityAndRevenue,
+           manipulationOfControl,
+           manipulationOfView
 
     }
 
