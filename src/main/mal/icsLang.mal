@@ -258,7 +258,8 @@ category ComputeResources {
            lossOfAvailability,
            lossOfProductivityAndRevenue,
            manipulationOfControl,
-           manipulationOfView
+           manipulationOfView,
+           shutdown
 
     }
 
