@@ -9,6 +9,7 @@ category IcsControlResources{
 
         | reprogramControllers
           user info: "Reprogram all of the controllers that the engineering station has access to."
+          modeler info: "This is meant to simulate situations where how the controllers are programmed is unknown, irrelevant, or over a temporary connection. Otherwise the Network and ConnectionRule assets should be used to propagate the attack."
           ->  programmableControllers.attemptManipulation
       }
 
