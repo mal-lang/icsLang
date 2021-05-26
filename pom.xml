@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
-Copyright 2020 icsLang contributors
+Copyright 2020-2021 icsLang contributors
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -68,7 +68,7 @@ limitations under the License.
     <dependency>
       <groupId>org.mal-lang</groupId>
       <artifactId>corelang</artifactId>
-      <version>0.1.0</version>
+      <version>0.2.0</version>
       <classifier>source</classifier>
     </dependency>
     <dependency>
@@ -234,7 +234,7 @@ limitations under the License.
                 <artifactItem>
                   <groupId>org.mal-lang</groupId>
                   <artifactId>corelang</artifactId>
-                  <version>0.1.0</version>
+                  <version>0.2.0</version>
                   <type>jar</type>
                   <classifier>source</classifier>
                   <overWrite>true</overWrite>
