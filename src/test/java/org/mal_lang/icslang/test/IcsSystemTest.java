@@ -8,7 +8,7 @@ public class IcsSystemTest extends IcsLangTest {
     private static class IcsSystemSubsystemsTestModel {
         public final IcsSystem parentIcsSystem = new
             IcsSystem("parentIcsSystem",
-                    false, false, true, false, false, false, true);
+                    false, false, false, false, false, true);
         public final IcsSystem criticalIcsSubsystem = new
             IcsSystem("criticalIcsSubsystem");
         public final IcsSystem redundantIcsSubsystem1 = new
@@ -34,7 +34,7 @@ public class IcsSystemTest extends IcsLangTest {
             IcsSystem("redundantIcsSubsystem");
         public final IcsSystem disabledRedundantIcsSubsystem = new
             IcsSystem("disabledRedundantIcsSubsystem",
-                    false, false, false, false, false, false, false);
+                    false, false, false, false, false, false);
 
         public IcsSystemDisabledRedundantSubsystemTestModel() {
             parentIcsSystem.addRedundantSubsystems(redundantIcsSubsystem);

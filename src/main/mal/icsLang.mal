@@ -29,12 +29,9 @@ category ComputeResources {
       user info: "An ICS System extends the coreLang's System with more attack vectors."
       developer info: "For example, the attacker can additionally peform ATT&CK ICS T847 'Replication Through Removable Media', T862 'Supply Chain Attack' and more."
     {
-      | connect @Override
-        +>  supplyChainAttack
 
       | physicalAccess @Override
-        +>  replicationThroughRemovableMedia,
-            moduleFirmware,
+        +>  moduleFirmware,
             systemFirmware
 
       | fullAccess @Override
@@ -43,28 +40,6 @@ category ComputeResources {
             lossOfAvailability,
             manipulationOfView,
             manipulationOfControl
-
-      & replicationThroughRemovableMedia [HardAndUncertain]
-        user info: "An adversary can get access by copying malware to removable media which is inserted into the control systems environment."
-        developer info: "MITRE ATT&CK ICS T847."
-        modeler info: "The probability function and its value is just an estimation!"
-        ->  bypassAccessControl
-
-      # disallowRemovableMedia
-        user info: "Mitigation for MITRE ATT&CK ICS T847."
-        developer info: "Mitigation was inspired by Sotirios."
-        ->  replicationThroughRemovableMedia
-
-      & supplyChainAttack [VeryHardAndUncertain]
-        user info: "Adversaries may perform supply chain compromise to gain control systems environment access by means of infected products, software, and workflows."
-        developer info: "MITRE ATT&CK ICS T862."
-        modeler info: "The probability fucntion and its value is just an estimation!"
-        ->  bypassAccessControl
-
-      # supplyChainAuditing
-        user info: "Auditing inside the supply chain can detect possible supply chain attacks. Mitigation for MITRE ATT&CK ICS T862."
-        developer info: "Mitigation was inspired by Sotirios."
-        ->  supplyChainAttack
 
       & moduleFirmware
         user info: "Adversaries may install malicious or vulnerable firmware onto modular hardware devices. Control system devices often contain modular hardware devices."

@@ -8,12 +8,12 @@ public class SISTest extends IcsLangTest {
     private static class SISTestModel {
         public final SIS sis = new SIS("sis");
         public final SIS disabledSis = new SIS("disabledSis",
-                false, false, false, false, false, false, false);
+                false, false, false, false, false, false);
         public final SIS redundantSISSubsystem = new
             SIS("redundantSISSubsystem");
         public final SIS redundantSISSubsystemDisabled = new
             SIS("redundantSISSubsystemDisabled",
-                false, false, false, false, false, false, false);
+                false, false, false, false, false, false);
 
         public final IcsSystem icsSystem = new IcsSystem("icsSystem");
         public final IcsSystem icsSystem2 = new IcsSystem("icsSystem2");
