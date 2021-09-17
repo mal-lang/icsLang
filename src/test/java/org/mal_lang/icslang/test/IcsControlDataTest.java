@@ -26,7 +26,7 @@ public class IcsControlDataTest extends IcsLangTest {
         var model = new IcsControlDataTestModel();
 
         var attacker = new Attacker();
-        model.addAttacker(attacker,model.icsControlData.write);
+        model.addAttacker(attacker,model.icsControlData.successfulWrite);
         attacker.attack();
 
         model.actuator.manipulate.assertCompromisedInstantaneously();
@@ -39,7 +39,7 @@ public class IcsControlDataTest extends IcsLangTest {
         var model = new IcsControlDataTestModel();
 
         var attacker = new Attacker();
-        model.addAttacker(attacker,model.icsControlData.delete);
+        model.addAttacker(attacker,model.icsControlData.successfulDelete);
         attacker.attack();
 
         model.actuator.block.assertCompromisedInstantaneously();
@@ -52,7 +52,7 @@ public class IcsControlDataTest extends IcsLangTest {
         var model = new IcsControlDataTestModel();
 
         var attacker = new Attacker();
-        model.addAttacker(attacker,model.icsControlData.deny);
+        model.addAttacker(attacker,model.icsControlData.successfulDeny);
         attacker.attack();
 
         model.actuator.block.assertCompromisedInstantaneously();

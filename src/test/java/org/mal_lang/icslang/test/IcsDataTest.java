@@ -24,7 +24,7 @@ public class IcsDataTest extends IcsLangTest {
         var model = new IcsDataTestModel();
 
         var attacker = new Attacker();
-        model.addAttacker(attacker,model.icsData.write);
+        model.addAttacker(attacker,model.icsData.successfulWrite);
         attacker.attack();
 
         model.destApp.manipulationOfView.assertCompromisedInstantaneously();
@@ -36,7 +36,7 @@ public class IcsDataTest extends IcsLangTest {
         var model = new IcsDataTestModel();
 
         var attacker = new Attacker();
-        model.addAttacker(attacker,model.icsData.delete);
+        model.addAttacker(attacker,model.icsData.successfulDelete);
         attacker.attack();
 
         model.destApp.lossOfView.assertCompromisedInstantaneously();
@@ -48,7 +48,7 @@ public class IcsDataTest extends IcsLangTest {
         var model = new IcsDataTestModel();
 
         var attacker = new Attacker();
-        model.addAttacker(attacker,model.icsData.deny);
+        model.addAttacker(attacker,model.icsData.successfulDeny);
         attacker.attack();
 
         model.destApp.lossOfView.assertCompromisedInstantaneously();

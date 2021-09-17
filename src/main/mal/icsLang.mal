@@ -476,16 +476,16 @@ category ComputeResources {
       user info: "An ICS Data extends coreLang's Data with OT attack vectors and directionality for non-control information."
       modeler info: "This data represents the non-control information sent over the OT network"
     {
-        & write  @Override {I}
+        & successfulWrite  @Override {I}
           user info: "Modifying the data leads to a manipulation of view on the destination(s) and a manipulation of control on the source(s)"
           +>  dataDestApp.manipulationOfView
 
 
-        & delete @Override {I, A}
+        & successfulDelete @Override {I, A}
           user info: "Deleting the data leads to a loss of view on the destination(s) and a loss of control on the source(s)"
           +>  dataDestApp.lossOfView
 
-        & deny @Override {A}
+        & successfulDeny @Override {A}
           user info: "Denying access to the data leads to a loss of view on the destination(s) and a loss of control on the source(s)"
           +>  dataDestApp.lossOfView
     }
@@ -494,18 +494,18 @@ category ComputeResources {
       user info: "An ICS Control Data extends coreLang's Data with OT attack vectors and directionality for control information."
       modeler info: "This data represents the control information sent over the OT network"
     {
-        & write  @Override {I}
+        & successfulWrite  @Override {I}
           user info: "Modifying the data leads to a manipulation of view on the destination(s) and a manipulation of control on the source(s)"
           +>  dataActuator.manipulate,
               dataDestApp.manipulationOfControl
 
 
-        & delete @Override {I, A}
+        & successfulDelete @Override {I, A}
           user info: "Deleting the data leads to a loss of view on the destination(s) and a loss of control on the source(s)"
           +>  dataActuator.block,
               dataDestApp.lossOfControl
 
-        & deny @Override {A}
+        & successfulDeny @Override {A}
           user info: "Denying access to the data leads to a loss of view on the destination(s) and a loss of control on the source(s)"
           +>  dataActuator.block,
               dataDestApp.lossOfControl
