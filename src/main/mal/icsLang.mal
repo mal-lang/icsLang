@@ -282,7 +282,7 @@ category ComputeResources {
         developer info: "MITRE ATT&CK ICS T831."
         ->  restrictedOperation,
             transmittedControlSignal.manipulateSignal,
-            transmittedControlData.attemptWrite,
+            sentData[IcsControlData].attemptWrite,
             hostSystem[IcsSystem].manipulationOfControl,
             hostSystem[IcsSystem].unsafeState
 
@@ -291,7 +291,7 @@ category ComputeResources {
         developer info: "MITRE ATT&CK ICS T827."
         ->  restrictedOperation,
             transmittedControlSignal.blockSignal,
-            transmittedControlData.attemptDeny,
+            sentData[IcsControlData].attemptDeny,
             hostSystem[IcsSystem].lossOfControl,
             hostSystem[IcsSystem].attemptPreemptiveShutdown
 
@@ -301,7 +301,7 @@ category ComputeResources {
         developer info: "MITRE ATT&CK ICS T832."
         ->  restrictedOperation,
             transmittedSignal.manipulateSignal,
-            transmittedData.attemptWrite,
+            sentData[IcsData].attemptWrite,
             hostSystem[IcsSystem].manipulationOfView,
             hostSystem[IcsSystem].unsafeState
 
@@ -310,7 +310,7 @@ category ComputeResources {
         developer info: "MITRE ATT&CK ICS T829."
         ->  restrictedOperation,
             transmittedSignal.blockSignal,
-            transmittedData.attemptDeny,
+            sentData[IcsData].attemptDeny,
             hostSystem[IcsSystem].lossOfView,
             hostSystem[IcsSystem].attemptPreemptiveShutdown
 
@@ -478,16 +478,15 @@ category ComputeResources {
     {
         & successfulWrite  @Override {I}
           user info: "Modifying the data leads to a manipulation of view on the destination(s) and a manipulation of control on the source(s)"
-          +>  dataDestApp.manipulationOfView
-
+          +>  receiverApp[IcsApplication].manipulationOfView
 
         & successfulDelete @Override {I, A}
           user info: "Deleting the data leads to a loss of view on the destination(s) and a loss of control on the source(s)"
-          +>  dataDestApp.lossOfView
+          +>  receiverApp[IcsApplication].lossOfView
 
         & successfulDeny @Override {A}
           user info: "Denying access to the data leads to a loss of view on the destination(s) and a loss of control on the source(s)"
-          +>  dataDestApp.lossOfView
+          +>  receiverApp[IcsApplication].lossOfView
     }
 
     asset IcsControlData extends Data
@@ -497,18 +496,17 @@ category ComputeResources {
         & successfulWrite  @Override {I}
           user info: "Modifying the data leads to a manipulation of view on the destination(s) and a manipulation of control on the source(s)"
           +>  dataActuator.manipulate,
-              dataDestApp.manipulationOfControl
-
+              receiverApp[IcsApplication].manipulationOfControl
 
         & successfulDelete @Override {I, A}
           user info: "Deleting the data leads to a loss of view on the destination(s) and a loss of control on the source(s)"
           +>  dataActuator.block,
-              dataDestApp.lossOfControl
+              receiverApp[IcsApplication].lossOfControl
 
         & successfulDeny @Override {A}
           user info: "Denying access to the data leads to a loss of view on the destination(s) and a loss of control on the source(s)"
           +>  dataActuator.block,
-              dataDestApp.lossOfControl
+              receiverApp[IcsApplication].lossOfControl
     }
   }
 
@@ -527,14 +525,6 @@ associations {
       user info: "Any ics application can transmit a signal."
   IcsApplication [controlSignalDestApp]   * <-- AppReceivedControlSignal    --> *     [receivedControlSignal] ControlSignal
       user info: "Any ics application can receive/consume a signal."
-  IcsApplication [dataSourceApp]         * <-- AppTransmittedData           --> *     [transmittedData] IcsData
-      user info: "Any ics application can transmit data."
-  IcsApplication [dataDestApp]           * <-- AppReceivedData              --> *     [receivedData]   IcsData
-      user info: "Any ics application can receive/consume data."
-  IcsApplication [dataSourceApp]         * <-- AppTransmittedData           --> *     [transmittedControlData] IcsControlData
-      user info: "Any ics application can transmit control data."
-  IcsApplication [dataDestApp]           * <-- AppReceivedData              --> *     [receivedControlData]   IcsControlData
-      user info: "Any ics application can receive/consume control data."
   Sensor         [signalSensor]          * <-- SensorSignal                 --> *     [signal]         Signal
       user info: "Any sensor can be associated with a signal over which it can send data."
   Sensor         [dataSensor]            * <-- SensorData                   --> *     [data]           IcsData

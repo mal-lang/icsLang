@@ -7,7 +7,7 @@ import org.junit.jupiter.api.Test;
 public class ControllerTest extends IcsLangTest {
     private static class ControllerTestModel {
         public final Controller controller = new
-            Controller("controller", false, false, false, true);
+            Controller("controller", false, false, true);
 
         public ControllerTestModel() {
         }

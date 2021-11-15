@@ -11,7 +11,7 @@ public class IcsControlDataTest extends IcsLangTest {
         public final IcsApplication destApp = new IcsApplication("destApp");
 
         public IcsControlDataTestModel() {
-            icsControlData.addDataDestApp(destApp);
+            icsControlData.addReceiverApp(destApp);
             icsControlData.addDataActuator(actuator);
         }
         public void addAttacker(Attacker attacker, AttackStep attackpoint) {

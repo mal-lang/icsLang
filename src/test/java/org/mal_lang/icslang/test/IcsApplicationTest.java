@@ -49,8 +49,8 @@ public class IcsApplicationTest extends IcsLangTest {
             icsSystem.addSysExecutedApps(icsApplication);
             icsApplication.addTransmittedSignal(signal);
             icsApplication.addTransmittedControlSignal(controlSignal);
-            icsApplication.addTransmittedData(icsData);
-            icsApplication.addTransmittedControlData(icsControlData);
+            icsApplication.addSentData(icsData);
+            icsApplication.addSentData(icsControlData);
         }
 
         public void addAttacker(Attacker attacker, AttackStep attackpoint) {

@@ -10,7 +10,7 @@ public class IcsDataTest extends IcsLangTest {
         public final IcsApplication destApp = new IcsApplication("destApp");
 
         public IcsDataTestModel() {
-            icsData.addDataDestApp(destApp);
+            icsData.addReceiverApp(destApp);
         }
         public void addAttacker(Attacker attacker, AttackStep attackpoint) {
             attacker.addAttackPoint(attackpoint);
