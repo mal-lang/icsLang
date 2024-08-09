@@ -1,6 +1,6 @@
 category IcsControlResources{
 
-    asset SIS extends IcsSystem
+    asset SIS extends IcsHardware
         user info: "A safety instrumented system (SIS) takes automated action to keep a plant in a safe state, or to put it into a safe state, when abnormal conditions are present."
         developer info: "https://collaborate.mitre.org/attackics/index.php/Safety_Instrumented_System/Protection_Relay"
       {
@@ -9,7 +9,7 @@ category IcsControlResources{
 
         # notDisabled @Override [Enabled]
           developer info: "The probability that a particular SIS is not actually present."
-          modeler info: "The use cases for this are removing the SIS safeguarding an IcsSystem and removing redundant SIS subsystems."
+          modeler info: "The use cases for this are removing the SIS safeguarding an IcsHardware and removing redundant SIS subsystems."
           -> safeguardedSystem.safetyMechanismsOffline,
              triggerPropagateRedundantShutdown
 

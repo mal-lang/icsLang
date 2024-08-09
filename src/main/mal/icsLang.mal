@@ -25,11 +25,10 @@ include "ics/SIS.mal"
 
 category ComputeResources {
 
-    asset IcsSystem extends System
+    asset IcsHardware extends Hardware
       user info: "An ICS System extends the coreLang's System with more attack vectors."
       developer info: "For example, the attacker can additionally peform ATT&CK ICS T847 'Replication Through Removable Media', T862 'Supply Chain Attack' and more."
     {
-
       | physicalAccess @Override
         +>  moduleFirmware,
             systemFirmware
@@ -44,7 +43,7 @@ category ComputeResources {
       & moduleFirmware
         user info: "Adversaries may install malicious or vulnerable firmware onto modular hardware devices. Control system devices often contain modular hardware devices."
         developer info: "MITRE ATT&CK ICS T839."
-        ->  bypassAccessControl
+        ->  fullAccess
 
       # moduleFirmwareVerification
         user info: "Verify the module's firmwares from the main firmware upon boot-up or during normal operation. Mitigation for MITRE ATT&CK ICS T839."
@@ -66,7 +65,7 @@ category ComputeResources {
       & systemFirmware
         user info: "An adversary may exploit the firmware update feature on accessible devices to upload malicious or out-of-date firmware."
         developer info: "MITRE ATT&CK ICS T857."
-        ->  bypassAccessControl
+        ->  fullAccess
 
       | deny @Override {A}
         +>  lossOfAvailability
@@ -226,8 +225,8 @@ category ComputeResources {
         -> lossOfProductivityAndRevenue
 
       # notDisabled [Enabled]
-        developer info: "The probability that a particular IcsSystem is not actually present."
-        modeler info: "The use case for this is removing some of the IcsSystems used to provide redundancy."
+        developer info: "The probability that a particular IcsHardware is not actually present."
+        modeler info: "The use case for this is removing some of the IcsHardwares used to provide redundancy."
         -> lossOfControl,
            lossOfView,
            lossOfAvailability,
@@ -262,7 +261,7 @@ category ComputeResources {
       | deny @Override {A}
         +>  lossOfControl,
             lossOfView,
-            hostSystem[IcsSystem].lossOfAvailability
+            hostHardware[IcsHardware].lossOfAvailability
 
       & attemptCovertManipulation [HardAndUncertain]
         user info: "If an application is operating normally it could even be the case that it is elaborately manipulated by an adversary."
@@ -283,8 +282,8 @@ category ComputeResources {
         ->  restrictedOperation,
             transmittedControlSignal.manipulateSignal,
             sentData[IcsControlData].attemptWrite,
-            hostSystem[IcsSystem].manipulationOfControl,
-            hostSystem[IcsSystem].unsafeState
+            hostHardware[IcsHardware].manipulationOfControl,
+            hostHardware[IcsHardware].unsafeState
 
       | lossOfControl {A}
         user info: "Adversaries may seek to achieve a sustained loss of control or a runaway condition in which operators cannot issue any commands even if the malicious interference has subsided."
@@ -292,8 +291,8 @@ category ComputeResources {
         ->  restrictedOperation,
             transmittedControlSignal.blockSignal,
             sentData[IcsControlData].attemptDeny,
-            hostSystem[IcsSystem].lossOfControl,
-            hostSystem[IcsSystem].attemptPreemptiveShutdown
+            hostHardware[IcsHardware].lossOfControl,
+            hostHardware[IcsHardware].attemptPreemptiveShutdown
 
       // View related attack steps (Impact)
       | manipulationOfView {I, A}
@@ -302,8 +301,8 @@ category ComputeResources {
         ->  restrictedOperation,
             transmittedSignal.manipulateSignal,
             sentData[IcsData].attemptWrite,
-            hostSystem[IcsSystem].manipulationOfView,
-            hostSystem[IcsSystem].unsafeState
+            hostHardware[IcsHardware].manipulationOfView,
+            hostHardware[IcsHardware].unsafeState
 
       | lossOfView {A}
         user info: "Adversaries may cause a sustained or permanent loss of view where the ICS equipment will require local, hands-on operator intervention."
@@ -311,8 +310,8 @@ category ComputeResources {
         ->  restrictedOperation,
             transmittedSignal.blockSignal,
             sentData[IcsData].attemptDeny,
-            hostSystem[IcsSystem].lossOfView,
-            hostSystem[IcsSystem].attemptPreemptiveShutdown
+            hostHardware[IcsHardware].lossOfView,
+            hostHardware[IcsHardware].attemptPreemptiveShutdown
 
       // Other types of Impact
       | theftOfOperationalInformation {C}
@@ -419,8 +418,8 @@ category ComputeResources {
 
         & readContainedInformationAndData
           user info: "From the data, attempt to access also the contained information/data, if exists."
-          ->  information.attemptAccess,
-              containedData.attemptAccess
+          ->  information.read,
+              containedData.read
 
         | attemptRead
           user info: "Attempt to read the data."
@@ -511,12 +510,12 @@ category ComputeResources {
   }
 
 associations {
-  IcsSystem [criticalParentSystem]     0..1 <-- CriticalSubsystem           --> *     [criticalSubsystems]     IcsSystem
-      user info: "IcsSystems can be nested, a disruption in any of the critical subsystems will be triggered in the parent system as well."
-  IcsSystem [redundantParentSystem]    0..1 <-- RedundantSubsystem          --> *     [redundantSubsystems]    IcsSystem
-      user info: "IcsSystems can be nested, a disruption will propagate to the parent system only if all of the redundant subsystems are affected by it."
-  IcsSystem    [safeguardedSystem]     0..1 <-- SafetyControls              --> 0..1  [sis]            SIS
-      user info: "An IcsSystem can have an SIS assigned to it to ensure that it is operating within safe parameters and act if it is not."
+  IcsHardware [criticalParentSystem]     0..1 <-- CriticalSubsystem           --> *     [criticalSubsystems]     IcsHardware
+      user info: "IcsHardwares can be nested, a disruption in any of the critical subsystems will be triggered in the parent system as well."
+  IcsHardware [redundantParentSystem]    0..1 <-- RedundantSubsystem          --> *     [redundantSubsystems]    IcsHardware
+      user info: "IcsHardwares can be nested, a disruption will propagate to the parent system only if all of the redundant subsystems are affected by it."
+  IcsHardware    [safeguardedSystem]     0..1 <-- SafetyControls              --> 0..1  [sis]            SIS
+      user info: "An IcsHardware can have an SIS assigned to it to ensure that it is operating within safe parameters and act if it is not."
   IcsApplication [signalSourceApp]        * <-- AppTransmittedSignal        --> *     [transmittedSignal] Signal
       user info: "Any ics application can transmit a signal."
   IcsApplication [signalDestApp]          * <-- AppReceivedSignal           --> *     [receivedSignal] Signal
@@ -529,13 +528,13 @@ associations {
       user info: "Any sensor can be associated with a signal over which it can send data."
   Sensor         [dataSensor]            * <-- SensorData                   --> *     [data]           IcsData
       user info: "Any sensor can be associated with data it sends."
-  Sensor         [sysSensor]             * <-- SensorBelongsTo              --> *     [system]         IcsSystem
+  Sensor         [sysSensor]             * <-- SensorBelongsTo              --> *     [system]         IcsHardware
       user info: "A sensor can be associated with a system where it measures a specific parameter."
   Actuator       [signalActuator]        * <-- ActuatorSignal               --> *     [signal]         ControlSignal
       user info: "An actuator can be associated with a signal from which it receives commands."
   Actuator       [dataActuator]          * <-- ActuatorData                 --> *     [data]           IcsControlData
       user info: "An actuator can be associated with data that contain commands."
-  Actuator       [sysActuator]           * <-- AcuatorBelongsTo             --> *     [system]         IcsSystem
+  Actuator       [sysActuator]           * <-- AcuatorBelongsTo             --> *     [system]         IcsHardware
       user info: "An actuator can be associated with a system on which it actuates."
   IcsApplication [synchronizedApp]       * <-- SynchronizationModule        --> 0..1  [synchronizationModule]    SynchronizationModule
       user info: "Any ics application can have one synchronization module to provide synchronization on the signals sent."
